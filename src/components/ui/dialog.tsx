@@ -32,13 +32,6 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   )
 }
 
-export function DialogTrigger({ children, asChild, ...props }: { 
-  children: React.ReactNode
-  asChild?: boolean 
-}) {
-  return children
-}
-
 export function DialogContent({ children }: { children: React.ReactNode }) {
   return <div className="space-y-4">{children}</div>
 }

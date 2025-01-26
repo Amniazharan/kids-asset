@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -27,9 +28,9 @@ export default function Login() {
       if (error) throw error
       router.push('/dashboard')
       router.refresh()
-    } catch (error) {
-      setError('Email atau kata laluan tidak sah')
-    } finally {
+    } catch (error: any) {
+        setError(error.message || 'Ralat semasa log masuk')
+      } finally {
       setLoading(false)
     }
   }
