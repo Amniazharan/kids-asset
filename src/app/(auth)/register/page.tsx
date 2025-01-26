@@ -26,18 +26,19 @@ export default function Register() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
-        },
       })
 
-      if (error) throw error
-      router.push('/login')
-    } catch (error) {
-      setError('Ralat semasa pendaftaran')
+      if (signUpError) throw signUpError
+
+      if (data.user) {
+        await supabase.auth.signOut() // Logout selepas register
+        router.push('/login')
+      }
+    } catch (error: any) {
+      setError(error.message || 'Ralat semasa pendaftaran')
     } finally {
       setLoading(false)
     }
@@ -93,7 +94,7 @@ export default function Register() {
               Sahkan Kata Laluan
             </label>
             <input
-              id="confirmPassword"
+              id="confirmPassword" 
               type="password"
               required
               value={confirmPassword}
