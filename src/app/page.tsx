@@ -1,3 +1,4 @@
+"use client"
 import Link from 'next/link'
 
 export default function Home() {
@@ -42,6 +43,65 @@ export default function Home() {
               <p className="text-gray-600">Tambah kategori aset mengikut keperluan</p>
             </div>
           </div>
+
+          <footer className="mt-16 py-6 relative overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-pink-50 to-yellow-50 opacity-50"></div>
+  
+  {/* Animated background */}
+  <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute -left-4 -bottom-4 w-24 h-24 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+    <div className="absolute -right-4 -top-4 w-24 h-24 bg-pink-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+    <div className="absolute left-1/2 -bottom-8 w-24 h-24 bg-yellow-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+  </div>
+
+  <div className="relative flex justify-center">
+    <a 
+      href="https://github.com/Amniazharan" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="group relative px-6 py-2 font-medium text-gray-600 transition-all duration-300 rounded-full"
+    >
+      <div className="absolute inset-0 h-full w-full transform -skew-x-12 bg-gradient-to-r from-blue-100 to-pink-100 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-full"></div>
+      <span className="relative inline-flex items-center">
+        <span className="mr-2">Developed by Amni Azharan</span>
+        <svg 
+          className="w-4 h-4 transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </span>
+    </a>
+  </div>
+
+  <style jsx>{`
+    .animate-blob {
+      animation: blob 7s infinite;
+    }
+    .animation-delay-2000 {
+      animation-delay: 2s;
+    }
+    .animation-delay-4000 {
+      animation-delay: 4s;
+    }
+    @keyframes blob {
+      0% {
+        transform: translate(0px, 0px) scale(1);
+      }
+      33% {
+        transform: translate(30px, -50px) scale(1.1);
+      }
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+      }
+      100% {
+        transform: translate(0px, 0px) scale(1);
+      }
+    }
+  `}</style>
+</footer>
         </div>
       </div>
     </div>
