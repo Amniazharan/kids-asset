@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
-
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,17 +19,25 @@ export default function Login() {
     setError('')
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (error) throw error
-      router.push('/dashboard')
-      router.refresh()
+
+      // Make sure session is set before redirecting
+      if (data?.session) {
+        router.push('/dashboard')
+        router.refresh()
+      } else {
+        throw new Error('No session created')
+      }
+
     } catch (error: any) {
-        setError(error.message || 'Ralat semasa log masuk')
-      } finally {
+      console.error('Login error:', error)
+      setError('Email atau kata laluan tidak sah')
+    } finally {
       setLoading(false)
     }
   }
