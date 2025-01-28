@@ -6,6 +6,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
 import { AddAssetForm } from '@/components/forms/add-asset-form'
 import { AssetList } from '@/components/shared/asset-list'
+import EditAssetDialog from '@/components/dialogs/edit-asset-dialog'
 
 interface ChildProfileProps {
   childId: string
@@ -34,11 +35,11 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false)
+  const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
   const router = useRouter()
   const supabase = createClientComponentClient()
 
   useEffect(() => {
-    console.log("childId in ChildProfile:", childId) // Debug log
     if (childId) {
       fetchChildData()
     }
@@ -97,6 +98,10 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
       console.error('Error deleting child:', error)
       setError('Ralat semasa memadam rekod anak')
     }
+  }
+
+  const handleEditAsset = (asset: Asset) => {
+    setEditingAsset(asset)
   }
 
   if (loading) {
@@ -158,6 +163,7 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
         <AssetList
           assets={assets}
           onAssetDeleted={fetchChildData}
+          onEditAsset={handleEditAsset}
         />
 
         <AddAssetForm
@@ -166,6 +172,20 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
           onOpenChange={setIsAddAssetOpen}
           onAssetAdded={fetchChildData}
         />
+
+        {editingAsset && (
+          <EditAssetDialog
+            open={!!editingAsset}
+            onOpenChange={(open) => !open && setEditingAsset(null)}
+            asset={{
+              id: editingAsset.id,
+              amount: editingAsset.amount,
+              category: editingAsset.category.name,
+              child_id: childId
+            }}
+            onAssetUpdated={fetchChildData}
+          />
+        )}
       </div>
     </div>
   )
