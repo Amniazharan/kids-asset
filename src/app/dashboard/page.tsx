@@ -37,7 +37,6 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user?.id) return
 
-      // Fetch children with their assets
       const { data: childrenData, error: childrenError } = await supabase
         .from('children')
         .select(`
@@ -51,7 +50,6 @@ export default function DashboardPage() {
 
       if (childrenError) throw childrenError
 
-      // Calculate total assets for each child and overall total
       let overallTotal = 0
       const childrenWithTotals = childrenData.map((child: any) => {
         const childTotal = child.assets?.reduce((sum: number, asset: any) => 
@@ -158,17 +156,15 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {children.map((child) => (
-            <div
+            <Link
               key={child.id}
-              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+              href={`/dashboard/${child.id}`}
+              className="block bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
             >
               <div className="flex justify-between items-start mb-2">
-                <Link
-                  href={`/dashboard/${child.id}`}
-                  className="text-lg font-semibold text-blue-500 hover:text-blue-600"
-                >
+                <span className="text-lg font-semibold text-blue-500">
                   {child.name}
-                </Link>
+                </span>
               </div>
               <p className="text-gray-600">
                 Jumlah Aset:{' '}
@@ -179,7 +175,7 @@ export default function DashboardPage() {
                   })}
                 </span>
               </p>
-            </div>
+            </Link>
           ))}
         </div>
 
