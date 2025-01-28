@@ -11,8 +11,29 @@ import { Input } from '@/components/ui/input'
 type Child = {
   id: string
   name: string
+  birthdate: string
   total_assets: number
   created_at: string
+}
+
+function calculateAge(birthdate: string) {
+  const birth = new Date(birthdate)
+  const today = new Date()
+  
+  let years = today.getFullYear() - birth.getFullYear()
+  let months = today.getMonth() - birth.getMonth()
+
+  if (months < 0) {
+    years--
+    months += 12
+  }
+
+  return { years, months }
+}
+
+function formatAge(birthdate: string) {
+  const { years, months } = calculateAge(birthdate)
+  return `${years} tahun ${months} bulan`
 }
 
 export default function DashboardPage() {
@@ -22,6 +43,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [newChildName, setNewChildName] = useState('')
+  const [birthdate, setBirthdate] = useState('')
   const [addingChild, setAddingChild] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
@@ -77,7 +99,7 @@ export default function DashboardPage() {
 
   const handleAddChild = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newChildName.trim() || addingChild) return
+    if (!newChildName.trim() || !birthdate || addingChild) return
 
     setAddingChild(true)
     setError('')
@@ -88,6 +110,7 @@ export default function DashboardPage() {
 
       const newChild = {
         name: newChildName.trim(),
+        birthdate,
         user_id: session.user.id
       }
 
@@ -98,6 +121,7 @@ export default function DashboardPage() {
       if (error) throw error
 
       setNewChildName('')
+      setBirthdate('')
       setIsOpen(false)
       fetchChildren()
     } catch (error: any) {
@@ -121,7 +145,7 @@ export default function DashboardPage() {
   return (
     <div className="p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-blue-500">Dashboard</h1>
             <p className="text-gray-600 mt-1">
@@ -131,21 +155,12 @@ export default function DashboardPage() {
               })}
             </p>
           </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <Button 
-              onClick={() => setIsOpen(true)}
-              className="bg-yellow-400 text-gray-700 hover:bg-yellow-300"
-            >
-              Tambah Anak
-            </Button>
-            <Button 
-              onClick={handleSignOut}
-              variant="outline"
-              className="border-red-500 text-red-500 hover:bg-red-50"
-            >
-              Log Keluar
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setIsOpen(true)}
+            className="bg-yellow-400 text-gray-700 hover:bg-yellow-300"
+          >
+            Tambah Anak
+          </Button>
         </div>
 
         {error && (
@@ -166,6 +181,9 @@ export default function DashboardPage() {
                   {child.name}
                 </span>
               </div>
+              <p className="text-gray-600 mb-2">
+                Umur: {formatAge(child.birthdate)}
+              </p>
               <p className="text-gray-600">
                 Jumlah Aset:{' '}
                 <span className="font-semibold">
@@ -202,6 +220,19 @@ export default function DashboardPage() {
                   placeholder="Masukkan nama anak"
                   required
                   disabled={addingChild}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tarikh Lahir
+                </label>
+                <Input
+                  type="date"
+                  value={birthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                  required
+                  disabled={addingChild}
+                  max={new Date().toISOString().split('T')[0]}
                 />
               </div>
               <Button 
