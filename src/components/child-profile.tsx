@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { AddAssetForm } from '@/components/forms/add-asset-form'
 import { AssetList } from '@/components/shared/asset-list'
 import EditAssetDialog from '@/components/dialogs/edit-asset-dialog'
+import { ChevronLeft, Coins, Wallet, Building } from 'lucide-react'
 
 interface ChildProfileProps {
   childId: string
@@ -29,6 +30,26 @@ type Asset = {
   category: {
     id: string
     name: string
+  }
+}
+
+const goldTypeMap: { [key: string]: string } = {
+  '999': 'Emas 999 (24K)',
+  '916': 'Emas 916 (22K)',
+  '750': 'Emas 750 (18K)',
+  '585': 'Emas 585 (14K)',
+}
+
+const getCategoryIcon = (categoryName: string) => {
+  switch (categoryName) {
+    case 'ASB':
+      return <Building className="w-6 h-6 text-blue-500" />
+    case 'Emas':
+      return <Coins className="w-6 h-6 text-yellow-500" />
+    case 'Tunai':
+      return <Wallet className="w-6 h-6 text-green-500" />
+    default:
+      return <Building className="w-6 h-6 text-gray-500" />
   }
 }
 
@@ -129,19 +150,21 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
   }
 
   return (
-    <div className="p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-blue-500">{child.name}</h1>
-            <p className="text-gray-600 mt-1">
-              Jumlah Aset: RM {totalAssets.toLocaleString('ms-MY', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
-            </p>
-          </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
+    <div className="min-h-screen bg-gray-50">
+      
+
+      {/* Child Info */}
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h1 className="text-2xl font-bold text-blue-500">{child.name}</h1>
+          <p className="text-gray-600 mt-2">
+            Jumlah Aset: RM {totalAssets.toLocaleString('ms-MY', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            })}
+          </p>
+          
+          <div className="flex flex-wrap gap-3 mt-6">
             <Button
               onClick={() => setIsAddAssetOpen(true)}
               className="bg-yellow-400 text-gray-700 hover:bg-yellow-300"
@@ -159,16 +182,82 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-lg mb-4">
+          <div className="bg-red-50 text-red-500 p-3 rounded-lg mt-4">
             {error}
           </div>
         )}
 
-        <AssetList
-          assets={assets}
-          onAssetDeleted={fetchChildData}
-          onEditAsset={handleEditAsset}
-        />
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {assets.map((asset) => (
+            <div 
+              key={asset.id}
+              className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center">
+                  {getCategoryIcon(asset.category.name)}
+                  <span className="ml-2 font-medium text-gray-900">
+                    {asset.category.name}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleEditAsset(asset)}
+                    variant="outline"
+                    className="h-8 px-2 text-sm"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (confirm('Adakah anda pasti untuk memadam aset ini?')) {
+                        fetchChildData()
+                      }
+                    }}
+                    variant="outline"
+                    className="h-8 px-2 text-sm border-red-500 text-red-500 hover:bg-red-50"
+                  >
+                    Padam
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-2">
+                <p className="text-2xl font-bold text-gray-900">
+                  RM {asset.amount.toLocaleString('ms-MY', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}
+                </p>
+              </div>
+
+              {asset.category.name === 'Emas' && asset.metadata ? (
+                <div className="mt-2 text-sm text-gray-600">
+                  <span>{asset.metadata.weight}g</span>
+                  {asset.metadata.type && (
+                    <span className="ml-1">
+                      ({goldTypeMap[asset.metadata.type] || asset.metadata.type})
+                    </span>
+                  )}
+                </div>
+              ) : null}
+
+              {asset.note && (
+                <div className="mt-2 text-sm text-gray-500">
+                  {asset.note}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {assets.length === 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500">
+              Tiada rekod aset. Sila tambah aset baru.
+            </p>
+          </div>
+        )}
 
         <AddAssetForm
           childId={childId}

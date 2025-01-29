@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Menu, Home, Users, Settings, LogOut } from 'lucide-react'
+import { Menu, Home, Settings, LogOut } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -24,7 +24,7 @@ export default function DashboardLayout({
 
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Tetapan', href: '/settings', icon: Settings },
+    { name: 'Tetapan', href: '/dashboard/settings', icon: Settings },
   ]
 
   const isActive = (path: string) => {
@@ -36,73 +36,77 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          onClick={() => setSidebarOpen(!isSidebarOpen)}
-          className="p-2 rounded-lg bg-white shadow-md text-gray-600 hover:text-blue-500"
-        >
-          <Menu size={24} />
-        </button>
+      {/* Header Bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 hover:text-blue-500"
+              >
+                <Menu size={24} />
+              </button>
+              <span className="text-lg font-medium">
+                {pathname === '/dashboard' ? 'Dashboard' : ''}
+                {pathname.startsWith('/dashboard/settings') ? 'Tetapan ' : ''}
+                {pathname.includes('/dashboard/') && !pathname.endsWith('/dashboard') ? 'Profile Anak' : ''}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+      <div 
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-200 ${
+          isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setSidebarOpen(false)}
       >
-        <div className="h-full px-3 py-4 overflow-y-auto bg-white border-r">
-          <div className="mb-8 px-2">
-            <h1 className="text-2xl font-bold text-blue-500">Aset Anak</h1>
+        <div 
+          className={`fixed top-0 left-0 h-full w-64 bg-white transform transition-transform duration-200 ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="p-4 border-b border-gray-200">
+            <h1 className="text-xl font-bold text-blue-500">Aset Anak</h1>
           </div>
           
-          <ul className="space-y-2">
+          <nav className="p-4 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon
               return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center p-2 rounded-lg ${
-                      isActive(item.href)
-                        ? 'bg-blue-50 text-blue-500'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <Icon size={20} />
-                    <span className="ml-3">{item.name}</span>
-                  </Link>
-                </li>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center px-3 py-2 rounded-lg ${
+                    isActive(item.href)
+                      ? 'bg-blue-50 text-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Icon size={20} />
+                  <span className="ml-3">{item.name}</span>
+                </Link>
               )
             })}
-            <li>
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center p-2 rounded-lg text-red-500 hover:bg-red-50"
-              >
-                <LogOut size={20} />
-                <span className="ml-3">Log Keluar</span>
-              </button>
-            </li>
-          </ul>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center w-full px-3 py-2 rounded-lg text-red-500 hover:bg-red-50"
+            >
+              <LogOut size={20} />
+              <span className="ml-3">Log Keluar</span>
+            </button>
+          </nav>
         </div>
-      </aside>
+      </div>
 
-      {/* Main content */}
-      <div className="lg:ml-64">
-        {/* Backdrop for mobile */}
-        {isSidebarOpen && (
-          <div
-            className="fixed inset-0 z-30 bg-gray-900 bg-opacity-50 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        <div className="min-h-screen bg-gray-50">
-          {children}
-        </div>
+      {/* Main Content */}
+      <div className="pt-4">
+        {children}
       </div>
     </div>
   )

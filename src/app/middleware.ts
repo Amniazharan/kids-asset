@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     // If no session and trying to access protected routes
     if (!session && (
       request.nextUrl.pathname.startsWith('/dashboard') ||
-      request.nextUrl.pathname.startsWith('/settings')
+      request.nextUrl.pathname.startsWith('dashboard/settings')
     )) {
       const redirectUrl = new URL('/login', request.url)
       return NextResponse.redirect(redirectUrl)
@@ -39,5 +39,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/settings/:path*', '/login', '/register']
+  matcher: ['/dashboard/:path*', '/dashboard/settings/:path*', '/login', '/register']
 }

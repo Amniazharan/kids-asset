@@ -7,6 +7,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { LogOut } from 'lucide-react'
 
 type Child = {
   id: string
@@ -143,65 +144,69 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-blue-500">Dashboard</h1>
-            <p className="text-gray-600 mt-1">
-              Jumlah Semua Aset: RM {totalAssets.toLocaleString('ms-MY', { 
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2 
-              })}
-            </p>
-          </div>
-          <Button 
-            onClick={() => setIsOpen(true)}
-            className="bg-yellow-400 text-gray-700 hover:bg-yellow-300"
-          >
-            Tambah Anak
-          </Button>
-        </div>
+    <div className="min-h-screen bg-gray-50">
 
-        {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {children.map((child) => (
-            <Link
-              key={child.id}
-              href={`/dashboard/${child.id}`}
-              className="block bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-blue-500">Senarai Anak</h1>
+              <p className="text-gray-600 mt-1">
+                Jumlah Semua Aset: RM {totalAssets.toLocaleString('ms-MY', { 
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2 
+                })}
+              </p>
+            </div>
+            <Button 
+              onClick={() => setIsOpen(true)}
+              className="bg-yellow-400 text-gray-700 hover:bg-yellow-300 w-full sm:w-auto"
             >
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-lg font-semibold text-blue-500">
-                  {child.name}
-                </span>
-              </div>
-              <p className="text-gray-600 mb-2">
-                Umur: {formatAge(child.birthdate)}
-              </p>
-              <p className="text-gray-600">
-                Jumlah Aset:{' '}
-                <span className="font-semibold">
-                  RM {child.total_assets.toLocaleString('ms-MY', { 
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2 
-                  })}
-                </span>
-              </p>
-            </Link>
-          ))}
-        </div>
+              Tambah Anak
+            </Button>
+          </div>
 
-        {children.length === 0 && (
-          <p className="text-center text-gray-500 mt-8">
-            Tiada rekod anak. Sila tambah anak baru.
-          </p>
-        )}
+          {error && (
+            <div className="bg-red-50 text-red-500 p-3 rounded-lg mt-4">
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            {children.map((child) => (
+              <Link
+                key={child.id}
+                href={`/dashboard/${child.id}`}
+                className="block bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-lg font-semibold text-blue-500">
+                    {child.name}
+                  </span>
+                </div>
+                <p className="text-gray-600 mb-2">
+                  Umur: {formatAge(child.birthdate)}
+                </p>
+                <p className="text-gray-600">
+                  Jumlah Aset:{' '}
+                  <span className="font-semibold">
+                    RM {child.total_assets.toLocaleString('ms-MY', { 
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2 
+                    })}
+                  </span>
+                </p>
+              </Link>
+            ))}
+          </div>
+
+          {children.length === 0 && (
+            <div className="text-center text-gray-500 mt-8">
+              Tiada rekod anak. Sila tambah anak baru.
+            </div>
+          )}
+        </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>

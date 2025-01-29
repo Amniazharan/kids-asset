@@ -112,54 +112,54 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-blue-500">Tetapan</h1>
-          <Button 
-            onClick={() => setIsOpen(true)}
-            className="bg-yellow-400 text-gray-700 hover:bg-yellow-300"
-          >
-            Tambah Kategori
-          </Button>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Senarai Kategori Aset
-            </h2>
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <div 
-                  key={category.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <span className="text-gray-700">{category.name}</span>
-                  <Button
-                    onClick={() => handleDeleteCategory(category.id)}
-                    disabled={deletingId === category.id}
-                    variant="outline"
-                    className="border-red-500 text-red-500 hover:bg-red-50"
-                  >
-                    {deletingId === category.id ? 'Memadam...' : 'Padam'}
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            {categories.length === 0 && (
-              <p className="text-center text-gray-500 py-4">
-                Tiada kategori. Sila tambah kategori baru.
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-blue-500">Senarai Kategori Aset</h1>
+              <p className="text-gray-600 mt-1">
+                Urus kategori aset untuk anak-anak anda
               </p>
-            )}
+            </div>
+            <Button 
+              onClick={() => setIsOpen(true)}
+              className="bg-yellow-400 text-gray-700 hover:bg-yellow-300 w-full sm:w-auto"
+            >
+              Tambah Kategori
+            </Button>
           </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-500 p-3 rounded-lg mt-4">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-6 space-y-2">
+            {categories.map((category) => (
+              <div 
+                key={category.id}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <span className="text-gray-700 font-medium">{category.name}</span>
+                <Button
+                  onClick={() => handleDeleteCategory(category.id)}
+                  disabled={deletingId === category.id}
+                  variant="outline"
+                  className="border-red-500 text-red-500 hover:bg-red-50"
+                >
+                  {deletingId === category.id ? 'Memadam...' : 'Padam'}
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {categories.length === 0 && (
+            <div className="text-center text-gray-500 py-8">
+              Tiada kategori. Sila tambah kategori baru.
+            </div>
+          )}
         </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
