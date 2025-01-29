@@ -21,6 +21,10 @@ type Asset = {
   id: string
   amount: number
   note: string | null
+  metadata: {
+    weight?: number
+    type?: string
+  } | null
   created_at: string
   category: {
     id: string
@@ -181,7 +185,9 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
               id: editingAsset.id,
               amount: editingAsset.amount,
               category: editingAsset.category.name,
-              child_id: childId
+              child_id: childId,
+              metadata: editingAsset.metadata,
+              note: editingAsset.note
             }}
             onAssetUpdated={fetchChildData}
           />

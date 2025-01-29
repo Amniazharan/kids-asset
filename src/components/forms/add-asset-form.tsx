@@ -18,10 +18,19 @@ interface AddAssetFormProps {
   onAssetAdded: () => void
 }
 
+const goldTypes = [
+  { id: '999', name: 'Emas 999 (24K)' },
+  { id: '916', name: 'Emas 916 (22K)' },
+  { id: '750', name: 'Emas 750 (18K)' },
+  { id: '585', name: 'Emas 585 (14K)' },
+]
+
 export function AddAssetForm({ childId, open, onOpenChange, onAssetAdded }: AddAssetFormProps) {
   const [categories, setCategories] = useState<AssetCategory[]>([])
   const [selectedCategory, setSelectedCategory] = useState('')
   const [amount, setAmount] = useState('')
+  const [weight, setWeight] = useState('')
+  const [goldType, setGoldType] = useState('999')
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -47,16 +56,26 @@ export function AddAssetForm({ childId, open, onOpenChange, onAssetAdded }: AddA
     }
   }
 
+  const resetForm = () => {
+    setAmount('')
+    setWeight('')
+    setGoldType('999')
+    setNote('')
+    setError('')
+  }
+
+  const selectedCategoryName = categories.find(c => c.id === selectedCategory)?.name
+  const isGoldCategory = selectedCategoryName === 'Emas'
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    console.log('Form submission started')
-    console.log('Selected category:', selectedCategory)
-    console.log('Amount:', amount)
-    console.log('Child ID:', childId)
-  
     if (!selectedCategory || !amount || loading) {
-      console.log('Validation failed')
+      return
+    }
+
+    if (isGoldCategory && !weight) {
+      setError('Sila isi berat emas')
       return
     }
   
@@ -70,22 +89,21 @@ export function AddAssetForm({ childId, open, onOpenChange, onAssetAdded }: AddA
         child_id: childId,
         category_id: selectedCategory,
         amount: numericAmount,
-        note: note.trim() || null
+        note: note.trim() || null,
+        metadata: isGoldCategory ? {
+          weight: parseFloat(weight),
+          type: goldType
+        } : null
       }
-      
-      console.log('Asset data to insert:', assetData)
   
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('assets')
         .insert([assetData])
         .select()
   
-      console.log('Supabase response:', { data, error })
-  
       if (error) throw error
   
-      setAmount('')
-      setNote('')
+      resetForm()
       onOpenChange(false)
       onAssetAdded()
     } catch (error: any) {
@@ -145,6 +163,44 @@ export function AddAssetForm({ childId, open, onOpenChange, onAssetAdded }: AddA
             />
           </div>
 
+          {isGoldCategory && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Berat (gram)
+                </label>
+                <Input
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="0.000"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Jenis Emas
+                </label>
+                <select
+                  value={goldType}
+                  onChange={(e) => setGoldType(e.target.value)}
+                  className="block w-full rounded-lg border border-gray-300 px-3 py-2
+                    focus:border-blue-500 focus:ring-blue-500"
+                  required
+                >
+                  {goldTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nota (Pilihan)
@@ -169,4 +225,3 @@ export function AddAssetForm({ childId, open, onOpenChange, onAssetAdded }: AddA
     </Dialog>
   )
 }
-

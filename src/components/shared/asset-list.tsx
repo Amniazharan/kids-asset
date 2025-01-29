@@ -6,6 +6,10 @@ type Asset = {
   id: string
   amount: number
   note: string | null
+  metadata: {
+    weight?: number
+    type?: string
+  } | null
   created_at: string
   category: {
     id: string
@@ -17,6 +21,13 @@ type AssetListProps = {
   assets: Asset[]
   onAssetDeleted: () => void
   onEditAsset: (asset: Asset) => void
+}
+
+const goldTypeMap: { [key: string]: string } = {
+  '999': 'Emas 999 (24K)',
+  '916': 'Emas 916 (22K)',
+  '750': 'Emas 750 (18K)',
+  '585': 'Emas 585 (14K)',
 }
 
 export function AssetList({ assets, onAssetDeleted, onEditAsset }: AssetListProps) {
@@ -51,6 +62,9 @@ export function AssetList({ assets, onAssetDeleted, onEditAsset }: AssetListProp
               <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">
                 Jumlah (RM)
               </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">
+                Maklumat
+              </th>
               <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">
                 Tindakan
               </th>
@@ -67,6 +81,27 @@ export function AssetList({ assets, onAssetDeleted, onEditAsset }: AssetListProp
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {asset.category.name === 'Emas' && asset.metadata ? (
+                    <div>
+                      <span>{asset.metadata.weight}g</span>
+                      {asset.metadata.type && (
+                        <span className="ml-2">
+                          ({goldTypeMap[asset.metadata.type] || asset.metadata.type})
+                        </span>
+                      )}
+                      {asset.note && (
+                        <div className="text-gray-500 text-xs mt-1">
+                          {asset.note}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      {asset.note || '-'}
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-right">
                   <div className="flex justify-end gap-2">
@@ -91,7 +126,7 @@ export function AssetList({ assets, onAssetDeleted, onEditAsset }: AssetListProp
 
             {assets.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-3 text-sm text-gray-500 text-center">
+                <td colSpan={4} className="px-4 py-3 text-sm text-gray-500 text-center">
                   Tiada rekod aset. Sila tambah aset baru.
                 </td>
               </tr>
