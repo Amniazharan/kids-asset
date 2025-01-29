@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Button } from '@/components/ui/button'
 import { AddAssetForm } from '@/components/forms/add-asset-form'
-import { AssetList } from '@/components/shared/asset-list'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import EditAssetDialog from '@/components/dialogs/edit-asset-dialog'
 import { ChevronLeft, Coins, Wallet, Building } from 'lucide-react'
 
@@ -16,6 +16,7 @@ interface ChildProfileProps {
 type Child = {
   id: string
   name: string
+  birthdate: string
 }
 
 type Asset = {
@@ -53,6 +54,21 @@ const getCategoryIcon = (categoryName: string) => {
   }
 }
 
+function calculateAge(birthdate: string) {
+  const birth = new Date(birthdate)
+  const today = new Date()
+  
+  let years = today.getFullYear() - birth.getFullYear()
+  let months = today.getMonth() - birth.getMonth()
+
+  if (months < 0) {
+    years--
+    months += 12
+  }
+
+  return { years, months }
+}
+
 export default function ChildProfile({ childId }: ChildProfileProps) {
   const [child, setChild] = useState<Child | null>(null)
   const [assets, setAssets] = useState<Asset[]>([])
@@ -61,6 +77,7 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
   const [error, setError] = useState('')
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
   const supabase = createClientComponentClient()
 
@@ -125,6 +142,25 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
     }
   }
 
+  const handleDeleteAsset = async (assetId: string) => {
+    if (!confirm('Adakah anda pasti untuk memadam aset ini?')) return
+
+    try {
+      const { error } = await supabase
+        .from('assets')
+        .delete()
+        .eq('id', assetId)
+
+      if (error) throw error
+      
+      // Refresh the child data after successful deletion
+      fetchChildData()
+    } catch (error) {
+      console.error('Error deleting asset:', error)
+      setError('Ralat semasa memadam aset')
+    }
+  }
+
   const handleEditAsset = (asset: Asset) => {
     setEditingAsset(asset)
   }
@@ -149,20 +185,35 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
     )
   }
 
+  // Calculate child's age
+  const { years, months } = calculateAge(child.birthdate)
+
   return (
     <div className="min-h-screen bg-gray-50">
-      
-
-      {/* Child Info */}
       <div className="max-w-4xl mx-auto px-4 pt-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h1 className="text-2xl font-bold text-blue-500">{child.name}</h1>
-          <p className="text-gray-600 mt-2">
-            Jumlah Aset: RM {totalAssets.toLocaleString('ms-MY', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            })}
-          </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-blue-500">{child.name}</h1>
+              <p className="text-gray-600 mt-1">
+                Umur: {years} tahun {months} bulan
+              </p>
+              <p className="text-gray-600 mt-1">
+                Jumlah Aset: RM {totalAssets.toLocaleString('ms-MY', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </p>
+            </div>
+            <Button
+              onClick={() => router.push('/dashboard')}
+              variant="outline"
+              className="h-10 px-3"
+            >
+              <ChevronLeft className="w-5 h-5 mr-2" />
+              Kembali
+            </Button>
+          </div>
           
           <div className="flex flex-wrap gap-3 mt-6">
             <Button
@@ -209,11 +260,7 @@ export default function ChildProfile({ childId }: ChildProfileProps) {
                     Edit
                   </Button>
                   <Button
-                    onClick={() => {
-                      if (confirm('Adakah anda pasti untuk memadam aset ini?')) {
-                        fetchChildData()
-                      }
-                    }}
+                    onClick={() => handleDeleteAsset(asset.id)}
                     variant="outline"
                     className="h-8 px-2 text-sm border-red-500 text-red-500 hover:bg-red-50"
                   >
